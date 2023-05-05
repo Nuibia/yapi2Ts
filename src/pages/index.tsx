@@ -1,20 +1,22 @@
-import React, { useEffect, useState } from "react";
 import styles from './index.less';
 import {Button, Form, Input, Select} from 'antd';
+import axios from 'axios';
+import { YApi2Ts } from "@/pages/YApi2Ts";
 const index = () => {
-  
-  
   
   const onFinish = async(values:{token:string,interfaceId:string}) => {
     const {token,interfaceId} = values;    
     
     if(token && interfaceId){
-      const res = await fetch(`/api/interface/get?token=${token}&id=${interfaceId}`);
-      console.log('res',res);
+      const res = await axios(`/api/interface/get?token=${token}&id=${interfaceId}`);
+      if(res?.data?.data) {
+        YApi2Ts(res.data.data);
+      }
+      // 获取请求form-body类型的请求参数
     }
   }
   return <div className={styles.Container}>
-    <h1 className={styles.contentTitle}>yapi2TS</h1>
+    <h1 className={styles.contentTitle}>YApi2TS</h1>
     <div className={styles.contentFilter}>
       <Form layout="inline" onFinish={onFinish}>
         <Form.Item label="选择项目组" name="token" required>
@@ -32,7 +34,8 @@ const index = () => {
         </Form.Item>
       </Form>
     </div>
-    <div className={styles.codeContent}></div>
+    <div className={styles.codeContent}>
+    </div>
   </div>;
 };
 
