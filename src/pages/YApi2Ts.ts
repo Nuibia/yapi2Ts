@@ -65,18 +65,17 @@ export const ReturnParams = (data: IParams[], path: string) => {
   });
   params += `}`;
   if (!data?.length) return "";
-  return params;
+  return replaceString(params);
 };
 // 响应result
 export const ReturnResult = (data: string, path: string) => {
   const JsonData: { [s: string]: IResult } =
     JSON.parse(data).properties.data.properties;
-  console.log(JsonData);
 
   let params = `export interface I${finallyCode(path)}Result {`;
   params += formatObject(JsonData);
   params += `}`;
-  return params;
+  return replaceString(params);
 };
 
 /** 获取路径的最后一个/后的值，并首字母大写 */
@@ -100,7 +99,7 @@ export const formatObject = (data: { [s: string]: IResult }) => {
       finallyCode += `${formatObject((value as any).items.properties)}`;
       finallyCode += `}[]`;
     } else {
-      finallyCode += `/** ${value.description} */`;
+      finallyCode += `/** ${value.description} */ `;
       finallyCode += `${key}:`;
       finallyCode += `${TypeObj?.[value.type]};`;
     }
@@ -108,3 +107,13 @@ export const formatObject = (data: { [s: string]: IResult }) => {
   return finallyCode;
 };
 
+/** 换行规则：
+ *  {
+ *  }
+ *  ;
+ *  \*\/
+ */
+// TODO:正则合并
+const replaceString = (data: string) => {
+  return data.replace(/[{|;|\]]/g, "$&\n").replace(/\*\//g, "$&\n");
+};
