@@ -18,7 +18,7 @@ const index = () => {
       );
       if (res?.data?.data) {
         const { queryParams, bodyParams, resultData } = YApi2Ts(res.data.data);
-        setParams(queryParams ?? bodyParams);
+        setParams(queryParams || bodyParams);
         setResult(resultData);
       }
       // 获取请求form-body类型的请求参数

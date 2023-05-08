@@ -17,8 +17,16 @@ interface IResult {
   description: string;
 }
 
+/** 后端-前端类型映射 */
+export const TypeObj: Record<string, string> = {
+  text: "string",
+  string: "string",
+  long: "number",
+  number: "number",
+  boolean: "boolean",
+};
+
 export const YApi2Ts = (data: any) => {
-  console.log(data);
   const {
     /** 接口名称 */
     title,
@@ -33,16 +41,16 @@ export const YApi2Ts = (data: any) => {
     /** query请求参数 */
     req_query,
   } = data;
-
+  console.log(data);
   return {
     // 请求参数
     queryParams: ReturnParams(req_query, path),
     bodyParams: ReturnParams(req_body_form, path),
-    resultData:ReturnResult(res_body, path)
+    // 详情参数
+    resultData: ReturnResult(res_body, path),
   };
 
-  // 详情参数
-  // 请求主体
+  //TODO: 请求主体
 };
 
 // 请求params
@@ -56,7 +64,7 @@ export const ReturnParams = (data: IParams[], path: string) => {
     params += `;`;
   });
   params += `}`;
-  if(!data?.length) return '';
+  if (!data?.length) return "";
   return params;
 };
 // 响应result
@@ -66,18 +74,9 @@ export const ReturnResult = (data: string, path: string) => {
   console.log(JsonData);
 
   let params = `export interface I${finallyCode(path)}Result {`;
-  params += formatResultBase(JsonData);
+  params += formatObject(JsonData);
   params += `}`;
   return params;
-};
-
-/** 后端-前端类型映射 */
-export const TypeObj: Record<string, string> = {
-  text: "string",
-  string:"string",
-  long: "number",
-  number: "number",
-  boolean: "boolean",
 };
 
 /** 获取路径的最后一个/后的值，并首字母大写 */
@@ -92,26 +91,20 @@ export const finallyCode = (path: string) => {
 export const formatObject = (data: { [s: string]: IResult }) => {
   let finallyCode = "";
   for (const [key, value] of Object.entries(data)) {
-    finallyCode += `/** ${value.description} */`;
-    finallyCode += `${key}:`;
-    finallyCode += `${TypeObj?.[value.type]};`;
+    if (value.type === "object") {
+      finallyCode += `${key}:{`;
+      finallyCode += formatObject((value as any).properties);
+      finallyCode += `};`;
+    } else if (value.type === "array") {
+      finallyCode += `${key}:{`;
+      finallyCode += `${formatObject((value as any).items.properties)}`;
+      finallyCode += `}[]`;
+    } else {
+      finallyCode += `/** ${value.description} */`;
+      finallyCode += `${key}:`;
+      finallyCode += `${TypeObj?.[value.type]};`;
+    }
   }
   return finallyCode;
 };
 
-export const formatResultBase = (data: { [s: string]: any }) => {
-  let finallyCode = "";
-  for (const [key, value] of Object.entries(data)) {
-    if (value.type === "object") {
-      finallyCode += `${key}:{`;
-      finallyCode += formatObject(value.properties);
-      finallyCode += `};`;
-    }
-    if (value.type === "array") {
-      finallyCode += `${key}:{`;
-      finallyCode += `${formatObject(value.items.properties)}`;
-      finallyCode += `}[]`;
-    }
-  }
-  return finallyCode;
-};
