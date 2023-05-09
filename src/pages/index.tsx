@@ -38,6 +38,11 @@ const index = () => {
                     "59101d71c85ee7f6d2bda25e888c1ef174d1be97994de106ae4b83f3aff3d5b8",
                   label: "CP",
                 },
+                {
+                  value:
+                    "64ed45edbf9f23b0a740abfd9100880ff3cf8ddcb1ff3cdaf88d8bec88bb9b8e",
+                  label: "海外",
+                },
               ]}
             />
           </Form.Item>

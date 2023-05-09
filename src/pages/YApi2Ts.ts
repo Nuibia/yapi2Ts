@@ -113,7 +113,7 @@ export const formatObject = (data: { [s: string]: IResult }) => {
  *  ;
  *  \*\/
  */
-// TODO:正则合并
 const replaceString = (data: string) => {
-  return data.replace(/[{|;|\]]/g, "$&\n").replace(/\*\//g, "$&\n");
+  return data.replace(/([{|;|\]]|\*\/)/g, "$&\n");
 };
+

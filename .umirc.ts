@@ -4,6 +4,7 @@ export default defineConfig({
   routes: [
     { path: "/", component: "index" },
   ],
+  outputPath:'yapi2ts',
   npmClient: 'pnpm',
   proxy: {
     '/api': {
