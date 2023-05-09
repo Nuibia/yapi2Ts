@@ -55,27 +55,29 @@ export const YApi2Ts = (data: any) => {
 
 // 请求params
 export const ReturnParams = (data: IParams[], path: string) => {
-  let params = `export interface I${finallyCode(path)}Params {`;
-  data.forEach((item) => {
-    params += `/** ${item.desc} */`;
-    params += `${item.name}`;
-    params += `${item.required === "0" ? "?" : ""}:`;
-    params += `${TypeObj?.[item.type] ?? "any"}`;
-    params += `;`;
-  });
-  params += `}`;
-  if (!data?.length) return "";
-  return replaceString(params);
+  if (data?.length) {
+    let params = `export interface I${finallyCode(path)}Params {`;
+    data.forEach((item) => {
+      params += `/** ${item.desc} */`;
+      params += `${item.name}`;
+      params += `${item.required === "0" ? "?" : ""}:`;
+      params += `${TypeObj?.[item.type] ?? "any"}`;
+      params += `;`;
+    });
+    params += `}`;
+    return replaceString(params);
+  }
 };
 // 响应result
 export const ReturnResult = (data: string, path: string) => {
   const JsonData: { [s: string]: IResult } =
     JSON.parse(data).properties.data.properties;
-
-  let params = `export interface I${finallyCode(path)}Result {`;
-  params += formatObject(JsonData);
-  params += `}`;
-  return replaceString(params);
+  if (JsonData) {
+    let params = `export interface I${finallyCode(path)}Result {`;
+    params += formatObject(JsonData);
+    params += `}`;
+    return replaceString(params);
+  }
 };
 
 /** 获取路径的最后一个/后的值，并首字母大写 */
@@ -87,24 +89,31 @@ export const finallyCode = (path: string) => {
   );
 };
 
-export const formatObject = (data: { [s: string]: IResult }) => {
-  let finallyCode = "";
-  for (const [key, value] of Object.entries(data)) {
-    if (value.type === "object") {
-      finallyCode += `${key}:{`;
-      finallyCode += formatObject((value as any).properties);
-      finallyCode += `};`;
-    } else if (value.type === "array") {
-      finallyCode += `${key}:{`;
-      finallyCode += `${formatObject((value as any).items.properties)}`;
-      finallyCode += `}[]`;
-    } else {
-      finallyCode += `/** ${value.description} */ `;
-      finallyCode += `${key}:`;
-      finallyCode += `${TypeObj?.[value.type]};`;
+export const formatObject = (data: { [s: string]: IResult }) => {   
+  
+  if(data) {
+    let finallyCode = "";
+    for (const [key, value] of Object.entries(data)) {
+      if (value.type === "object") {
+        finallyCode += `${key}:{`;
+        finallyCode += formatObject((value as any)?.properties);
+        finallyCode += `};`;
+      } else if (value.type === "array") {
+        if((value as any).items.type === "object"){
+          finallyCode += `${key}:{`;
+          finallyCode += `${formatObject((value as any)?.items?.properties)}`;
+          finallyCode += `}[]`;
+        }else {
+          finallyCode += `${key}:${(value as any).items.type}[]`
+        }
+      } else {
+        finallyCode += `/** ${value?.description} */ `;
+        finallyCode += `${key}:`;
+        finallyCode += `${TypeObj?.[value?.type]};`;
+      }
     }
-  }
-  return finallyCode;
+    return finallyCode;
+  }  
 };
 
 /** 换行规则：
@@ -116,4 +125,3 @@ export const formatObject = (data: { [s: string]: IResult }) => {
 const replaceString = (data: string) => {
   return data.replace(/([{|;|\]]|\*\/)/g, "$&\n");
 };
-

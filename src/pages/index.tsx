@@ -11,8 +11,9 @@ const index = () => {
 
   const onFinish = async (values: { token: string; interfaceId: string }) => {
     const { token, interfaceId } = values;
-
     if (token && interfaceId) {
+      setParams(undefined);
+      setResult(undefined);
       const res = await axios(
         `/api/interface/get?token=${token}&id=${interfaceId}`
       );
@@ -36,13 +37,23 @@ const index = () => {
                 {
                   value:
                     "59101d71c85ee7f6d2bda25e888c1ef174d1be97994de106ae4b83f3aff3d5b8",
-                  label: "CP",
+                  label: "CP(api-app)",
                 },
-                {
-                  value:
-                    "64ed45edbf9f23b0a740abfd9100880ff3cf8ddcb1ff3cdaf88d8bec88bb9b8e",
-                  label: "海外",
-                },
+                // {
+                //   value:
+                //     "64ed45edbf9f23b0a740abfd9100880ff3cf8ddcb1ff3cdaf88d8bec88bb9b8e",
+                //   label: "海外",
+                // },
+                // {
+                //   value:
+                //     "64ed45edbf9f23b0a740abfd9100880ff3cf8ddcb1ff3cdaf88d8bec88bb9b8e",
+                //   label: "TM",
+                // },
+                // {
+                //   value:
+                //     "64ed45edbf9f23b0a740abfd9100880ff3cf8ddcb1ff3cdaf88d8bec88bb9b8e",
+                //   label: "甜优",
+                // },
               ]}
             />
           </Form.Item>
